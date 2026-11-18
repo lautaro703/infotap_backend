@@ -28,5 +28,9 @@ export class ProvinciaService {
         Object.assign(provincia,command);
         return this.provinciaRepository.save(provincia)
     }
+
+    async obtenerPorNombre(nombre: string): Promise<ProvinciaEntity | null> {
+        return await this.provinciaRepository.obtenerPorNombre(nombre);
+    }
 }
 

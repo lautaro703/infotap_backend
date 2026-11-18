@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param,Delete, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param,Delete, Post, Put } from '@nestjs/common';
 import { GeneroService } from '../../service/genero.service';
 import { get } from 'http';
 import { DeleteGeneroCommand } from '../../service/dtos/delete.genero.command';
 import { CannotGetEntityManagerNotConnectedError } from 'typeorm';
+import { PutGeneroCommand } from '../../service/dtos/put.genero.command';
+import { GetGeneroQuery } from '../../service/dtos/get.genero.query';
 
 @Controller('genero')
 export class GeneroController {
@@ -26,5 +28,10 @@ export class GeneroController {
     @Delete(':id')
     delete(@Param('id')id:number){
         return this.generoService.delete({id} as DeleteGeneroCommand);
+    }
+
+    @Put(':id')
+    update(@Param('id') id:number, @Body() command: PutGeneroCommand){
+        return this.generoService.update({ id } as GetGeneroQuery,command);
     }
 }

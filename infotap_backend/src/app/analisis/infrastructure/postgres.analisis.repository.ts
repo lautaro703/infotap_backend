@@ -10,21 +10,25 @@ export class PostgresAnalisisRepository implements analisisRepository{
         @InjectRepository(AnalisisEntity) private readonly repository:Repository<AnalisisEntity>
     ){}
 
-    findAll(): Promise<AnalisisEntity[]> {
-        return this.repository.find();
+    async findAll(): Promise<AnalisisEntity[]> {
+        return await this.repository.find({relations: ['archivo']});
     }
 
-    findById(id: number): Promise<AnalisisEntity | null> {
-        return this.repository.findOne({where: {id}});
+    async findById(id: number): Promise<AnalisisEntity | null> {
+        return await this.repository.findOne({where: {id}});
     }
 
-    create(analisis: AnalisisEntity): Promise<AnalisisEntity> {
+    async create(analisis: AnalisisEntity): Promise<AnalisisEntity> {
         const entity= this.repository.create(analisis)
-        return this.repository.save(entity)
+        return await this.repository.save(entity)
     }
     
     async delete(id: number): Promise<void>{
         await this.repository.delete(id);
+    }
+
+    async update(id:number, analisis:Partial<AnalisisEntity>): Promise<AnalisisEntity>{
+        return await this.repository.save({...analisis, id})
     }
 
 }

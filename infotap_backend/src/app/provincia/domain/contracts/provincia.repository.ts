@@ -6,4 +6,6 @@ export abstract class provinciaRepository{
     abstract findById(id:number):Promise<ProvinciaEntity | null>;
 
     abstract save(provincia:ProvinciaEntity):Promise<ProvinciaEntity>;
+
+    abstract obtenerPorNombre(nombre: string): Promise<ProvinciaEntity | null>;
 }

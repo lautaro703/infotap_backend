@@ -10,17 +10,47 @@ export class PostgresParticiopanteRepository implements ParticipanteRepository{
         @InjectRepository(ParticipanteEntity) private readonly repository:Repository<ParticipanteEntity>
     ){}
 
-    findAll(): Promise<ParticipanteEntity[]> {
-        return this.repository.find();
+    async findAll(): Promise<ParticipanteEntity[]> {
+        return await this.repository.find({
+            relations:{
+                barrio:{
+                    ciudad:{
+                        provincia:true
+                    },
+                },
+                genero:true,
+                analisis:true,
+            }
+        });
     }
 
-    findById(id: number): Promise<ParticipanteEntity | null> {
-        return this.repository.findOne({where: {id}});
+    async findByDni(dni: number): Promise<ParticipanteEntity | null> {
+        const participante = await this.repository.findOne({
+            where: { dni },
+            relations: {
+            analisis: true,
+            },
+        });
+
+        console.log('BUSQUEDA DIRECTA EN REPOSITORIO:', {
+            dniBuscado: dni,
+            participanteEncontrado: participante?.id ?? null,
+        });
+
+        return participante;
+    }
+    
+    async findById(id: number): Promise<ParticipanteEntity | null> {
+        return await this.repository.findOne({where: {id}});
     }
 
-    create(participante: ParticipanteEntity): Promise<ParticipanteEntity> {
+    async update(participante: ParticipanteEntity): Promise<ParticipanteEntity> {
+        return await this.repository.save(participante)
+    }
+
+    async create(participante: ParticipanteEntity): Promise<ParticipanteEntity> {
         const entity= this.repository.create(participante)
-        return this.repository.save(entity)
+        return await this.repository.save(entity)
     }
 
     async delete(id: number): Promise<void>{

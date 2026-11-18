@@ -9,6 +9,6 @@ import { ParticipanteEntity } from './infrastructure/participantes.entity';
   controllers: [ParticipantesController],
   providers: [ParticipantesService,PostgresParticiopanteRepository],
   imports: [TypeOrmModule.forFeature([ParticipanteEntity])],
-  exports:[],
+  exports:[ParticipantesService],
 })
 export class ParticipantesModule {}

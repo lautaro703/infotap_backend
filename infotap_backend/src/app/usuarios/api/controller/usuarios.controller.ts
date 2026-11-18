@@ -1,14 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Headers ,Controller, Delete, Get, Param, Post, Put, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from '../../service/usuarios.service';
 import { UsuarioDto } from '../dto/usuarios.dto';
 import { GetUsuarioQuery } from '../../service/dtos/get.usuarios.query';
 import { PostUsuarioCommand } from '../../service/dtos/post.usuarios.command';
 import { PutUsuarioCommand } from '../../service/dtos/put.usuarios.command';
 import { DeleteUsuarioCommand } from '../../service/dtos/delete.usuarios.command';
+import { FirebaseService } from '../../../firebase/firebase.service';
 
 @Controller('usuarios')
 export class UsuariosController {
-    constructor(private readonly usuarioService: UsuariosService){}
+    constructor(private readonly usuarioService: UsuariosService,private readonly firebaseService: FirebaseService){}
 
     @Get()
     findAll(){
@@ -21,9 +22,19 @@ export class UsuariosController {
         return UsuarioDto.fromEntity(usuario);
     }
 
-    @Post()
-    async create(@Body() command: PostUsuarioCommand){
-        const usuario = await this.usuarioService.create(command);
+    @Post('login-google')
+    async loginGoogle(@Headers('authorization') authorization: string) {
+        if (!authorization || !authorization.startsWith('Bearer ')) {
+            throw new UnauthorizedException('Token no proporcionado');
+        }
+        const token = authorization.split(' ')[1];
+        const datosGoogle = await this.firebaseService.verificarToken(token);
+        const usuario = await this.usuarioService.buscarOCrearDesdeGoogle({
+            uid: datosGoogle.uid,
+            email: datosGoogle.email,
+            nombre: datosGoogle.name || '',
+            fotoPerfil: datosGoogle.picture,
+        });
         return UsuarioDto.fromEntity(usuario);
     }
 

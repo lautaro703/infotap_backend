@@ -5,9 +5,9 @@ import { ArchivoDto } from '../dto/archivos.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetArchivoQuery } from '../../service/dtos/get.archivos.query';
 import { DeleteArchivoCommand } from '../../service/dtos/delete.archivos.command';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { console } from 'inspector';
+import { diskStorage, memoryStorage } from 'multer';
+import { CreateChatParameters } from '@google/genai';
+
 
 @Controller('archivos')
 export class ArchivosController {
@@ -37,49 +37,69 @@ export class ArchivosController {
 
     @Post('upload')
     @UseInterceptors(
-        FileInterceptor('file',{
-            storage:diskStorage({
-                destination:'./uploads',
-                filename: (req, file, callback)=>{
-                    const uniqueSuffix=Date.now()+ '-'+Math.round(Math.random() *1e9);
-                    const ext=extname(file.originalname);
-                    callback(null, `file-${uniqueSuffix}${ext}`);
-                },
-            }),
-        }),
+    FileInterceptor('file', {
+        storage: memoryStorage(),
+    }),
     )
     async uploadFile(
-        @UploadedFile() file: Express.Multer.File,
-        @Body('usuario_ID') usuario_ID: string | number,
-        @Body('nombreActividad') nombreActividad:string,
-        @Body('columnasMapeadas') columnasMapeadasRaw:string,
-    ){
-        if(!file){
-            throw new BadRequestException('No se ha subido ningun archivo');
-        }
+    @UploadedFile() file: Express.Multer.File,
+    @Body('usuario_ID') usuario_ID: string | number,
+    @Body('nombreActividad') nombreActividad: string,
+    @Body('columnasMapeadas') columnasMapeadasRaw: string,
+    ) {
+    console.log('PASO 1: ENTRÓ AL CONTROLADOR DE UPLOAD');
 
-        const idUsuarioParsed = Number(usuario_ID);
-        const idUsuarioFinal = !isNaN(idUsuarioParsed) && idUsuarioParsed > 0 ? idUsuarioParsed : 1;
-        const columnaMapeadas=columnasMapeadasRaw ? JSON.parse(columnasMapeadasRaw) : [];
-        const archivoGuardado =  await this.archivoService.guardarMetaDatos({
-            nombre:nombreActividad || file.originalname,
-            ruta: file.path,
-            mineType:file.mimetype,
-            usuario_ID:idUsuarioFinal,
-        })
+    if (!file) {
+        throw new BadRequestException('No se ha subido ningún archivo');
+    }
 
-        const datosMapeados= await this.archivoService.leerYParsearExcel(
-            file.path,columnaMapeadas,
-        )
+    const idUsuarioParsed = Number(usuario_ID);
 
-        console.table(datosMapeados);
+    const idUsuarioFinal =
+        !isNaN(idUsuarioParsed) && idUsuarioParsed > 0
+        ? idUsuarioParsed
+        : 1;
 
-        return{
-            mensaje:'Archivo guardado y datos procesados con éxito',
-            archivo:archivoGuardado,
-            totalFilas:datosMapeados.length,
-            datos:datosMapeados,
-        }
+    let columnasMapeadas;
+
+    try {
+        columnasMapeadas = columnasMapeadasRaw
+        ? JSON.parse(columnasMapeadasRaw)
+        : [];
+    } catch {
+        throw new BadRequestException(
+        'El formato de las columnas mapeadas no es válido',
+        );
+    }
+
+    console.log('PASO 2: GUARDANDO METADATOS DEL ARCHIVO');
+
+    const archivoGuardado = await this.archivoService.guardarMetaDatos({
+        nombre: nombreActividad || file.originalname,
+        ruta: file.originalname,
+        mimetype: file.mimetype,
+        usuario_ID: idUsuarioFinal,
+    });
+
+    console.log('PASO 3: ARCHIVO GUARDADO', archivoGuardado.id);
+
+    console.log('PASO 4: INICIANDO ANÁLISIS Y GUARDADO DE PARTICIPANTES');
+
+    const resultado =
+        await this.archivoService.procesarEInsertaAnalisis(
+        idUsuarioFinal,
+        file.buffer,
+        archivoGuardado.id,
+        columnasMapeadas,
+        );
+
+    console.log('PASO 5: ANÁLISIS Y PARTICIPANTES PROCESADOS');
+
+    return {
+        mensaje: 'Archivo, análisis y participantes guardados exitosamente',
+        archivo: archivoGuardado,
+        ...resultado,
+    };
     }
 
     @Post('previaCabecera')
@@ -90,4 +110,38 @@ export class ArchivosController {
       }
       return this.archivoService.previaCabecera(file);
     }
+
+    @Post('reconocerCabeceras')
+    async reconocerCabeceras(
+        @Body() body: {
+            columnas: { letra: string; encabezado: string }[]
+        },
+        ) {
+        console.log('BODY RECIBIDO:', body);
+
+        return this.archivoService.reconocerCabeceras(
+            body?.columnas || [],
+        );
+    }
+    
+    @Post('consulta-actividad')
+    async consultaActividad(@Body() resumenEstadisticas: {
+        totalInscriptos: number;
+        totalBarrios: number;
+        promedioEdad: number;
+        barrioFrecuente: string;
+        segmentoEtario: string;
+        distribucionSexo: string;
+        pregunta: string;
+        detalleActividades: {
+        nombre_actividad: string;
+        sexo: string;
+        cantidad_personas: number;
+        }[];
+    }) {
+        return await this.archivoService.consultaActividad(
+        resumenEstadisticas,
+        );
+    }
+  
 }

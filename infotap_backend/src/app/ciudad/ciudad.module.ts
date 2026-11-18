@@ -9,6 +9,6 @@ import { CiudadEntity } from './infrastructure/ciudad.entity';
   controllers: [CiudadController],
   imports: [TypeOrmModule.forFeature([CiudadEntity])],
   providers: [CiudadService,PostgresCiudadRepository],
-  exports:[],
+  exports:[CiudadService],
 })
 export class CiudadModule {}

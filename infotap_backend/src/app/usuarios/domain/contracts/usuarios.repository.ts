@@ -5,6 +5,8 @@ export abstract class UsuarioRepository{
     abstract findAll(): Promise<UsuarioEntity[]>
 
     abstract findById(id:number):Promise<UsuarioEntity | null>
+    
+    abstract findByFirebaseUid(uid: string): Promise<UsuarioEntity | null>
 
     abstract create(usuario:UsuarioEntity): Promise<UsuarioEntity>;
 

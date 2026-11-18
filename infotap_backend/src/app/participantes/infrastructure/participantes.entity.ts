@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BarrioEntity } from "../../barrios/infrastructure/barrios.entity";
 import { AnalisisEntity } from "../../analisis/infrastructure/analisis.entity";
 import { GeneroEntity } from "../../genero/infrastructure/genero.entity";
@@ -15,7 +15,7 @@ export class ParticipanteEntity{
     @Column()
     apellido:string;
 
-    @Column()
+    @Column({unique:true})
     dni:number;
 
     @Column()
@@ -24,15 +24,25 @@ export class ParticipanteEntity{
     @Column()
     edad:number;
 
-    @Column()
-    telefono:number;
+    @Column({ type: 'varchar', length: 20 })
+    telefono:string;
 
     @Column()
     fecha_creacion:Date;
 
-    @ManyToOne(()=> AnalisisEntity,(analisis)=> analisis.participante)
-    @JoinColumn({name: 'analisis_ID'})
-    analisis:AnalisisEntity;
+    @ManyToMany(() => AnalisisEntity,(analisis) => analisis.participante)
+    @JoinTable({name: 'participante_analisis',
+    joinColumn: {
+        name: 'participante_ID',
+        referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+        name: 'analisis_ID',
+        referencedColumnName: 'id',
+       
+    },
+    })
+    analisis: AnalisisEntity[];
 
     @ManyToOne(()=> BarrioEntity,(barrio)=>barrio.participante)
     @JoinColumn({name: 'barrio_ID'})

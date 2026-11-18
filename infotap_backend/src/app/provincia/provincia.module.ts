@@ -9,6 +9,6 @@ import { ProvinciaEntity } from './infrastructure/provincia.entity';
   controllers: [ProvinciaController],
   providers: [ProvinciaService,PostgresProvinciaRepository],
   imports: [TypeOrmModule.forFeature([ProvinciaEntity])],
-  exports:[],
+  exports:[ProvinciaService],
 })
 export class ProvinciaModule {}

@@ -11,4 +11,6 @@ export abstract class BarrioRepository{
 
     abstract update(id:number, barrio: Partial<BarrioEntity>):Promise<BarrioEntity>
 
+    abstract obtenerOCrear(nombre: string, ciudad_ID: number | null): Promise<BarrioEntity>;
+
 }

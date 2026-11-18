@@ -11,4 +11,6 @@ export abstract class CiudadRepository{
     abstract delete(id:number): Promise<void>
 
     abstract update(id:number, ciudad: Partial<CiudadEntity>):Promise<CiudadEntity>
+
+    abstract obtenerOCrear(nombre: string, provincia_ID: number | null): Promise<CiudadEntity>;
 }

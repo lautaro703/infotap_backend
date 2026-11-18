@@ -4,6 +4,7 @@ import { DeleteParticipanteCommand } from './dtos/delete.participantes.command';
 import { PostParticipanteCommand } from './dtos/post.participantes.command';
 import { GetParticipanteQuery } from './dtos/get.participantes.query';
 import { ParticipanteEntity } from '../infrastructure/participantes.entity';
+import { PutParticipanteCommand } from './dtos/put.participantes.command';
 
 @Injectable()
 export class ParticipantesService {
@@ -25,6 +26,24 @@ export class ParticipantesService {
         const participante = new ParticipanteEntity();
         Object.assign(participante, command);
         return this.participanteRepository.create(participante);
+    }
+
+    async findByDni(dni:number){
+        return await this.participanteRepository.findByDni(dni)
+    }
+
+    async update(command: PutParticipanteCommand) {
+        const participante = await this.participanteRepository.findById(
+            command.id
+        );
+
+        if (!participante) {
+            throw new NotFoundException('Participante no disponible');
+        }
+
+        participante.analisis = command.analisis;
+
+        return await this.participanteRepository.update(participante);
     }
 
     async delete(command: DeleteParticipanteCommand):Promise<void>{

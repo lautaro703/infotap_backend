@@ -22,6 +22,27 @@ export class UsuariosService {
         return usuario;
     }
 
+    async buscarOCrearDesdeGoogle(datos:{
+        uid: string;
+        email: string;
+        nombre: string;
+        fotoPerfil?: string;
+    }){
+        const usuarioExiste = await this.usuarioRepository.findByFirebaseUid(datos.uid);
+
+        if(usuarioExiste){
+            return usuarioExiste;
+        }
+
+        const nuevoUsuario = new UsuarioEntity();
+        nuevoUsuario.firebase_uid=datos.uid;
+        nuevoUsuario.correo=datos.email;
+        nuevoUsuario.nombre=datos.nombre;
+        nuevoUsuario.foto_perfil=datos.fotoPerfil?? null;
+
+        return this.usuarioRepository.create(nuevoUsuario);
+    }
+
     async create(command: PostUsuarioCommand){
         const usuario = new UsuarioEntity();
         Object.assign(usuario, command);

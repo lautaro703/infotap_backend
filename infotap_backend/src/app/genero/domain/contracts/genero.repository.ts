@@ -7,5 +7,9 @@ export abstract class GeneroRepository{
 
     abstract save(genero:GeneroEntity):Promise<GeneroEntity>;
 
+    abstract update(id:number, barrio: Partial<GeneroEntity>):Promise<GeneroEntity>
+    
     abstract delete(id:number):Promise<void>;
+
+    abstract obtenerPorTipo(tipo: string): Promise<GeneroEntity>;
 }

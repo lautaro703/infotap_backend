@@ -12,11 +12,11 @@ export class BarrioEntity{
     @Column()
     nombre:string;
 
-    @Column()
-    latitud:number;
+    @Column({type: 'decimal', precision:10,scale:7,nullable:true})
+    latitud:number | null;
 
-    @Column()
-    longitud:number;
+    @Column({type: 'decimal', precision:10,scale:7,nullable:true})
+    longitud:number | null;
 
     @ManyToOne(()=>CiudadEntity, (ciudad)=>ciudad.barrio)
     ciudad:CiudadEntity;

@@ -8,6 +8,6 @@ import { GeneroEntity } from './infrastructure/genero.entity';
   controllers: [GeneroController],
   providers: [GeneroService,PostgresGeneroRepository],
   imports: [TypeOrmModule.forFeature([GeneroEntity])],
-  exports:[],
+  exports: [GeneroService]
 })
 export class GeneroModule {}

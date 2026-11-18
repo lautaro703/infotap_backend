@@ -10,21 +10,25 @@ export class PostgresUsuarioRepository implements UsuarioRepository{
         @InjectRepository(UsuarioEntity) private readonly repository:Repository<UsuarioEntity>
     ){}
 
-    findAll(): Promise<UsuarioEntity[]> {
-        return this.repository.find();
+    async findAll(): Promise<UsuarioEntity[]> {
+        return await this.repository.find();
     }
 
-    findById(id: number): Promise<UsuarioEntity | null> {
-        return this.repository.findOne({where: {id}});
+    async findById(id: number): Promise<UsuarioEntity | null> {
+        return await this.repository.findOne({where: {id}});
     }
 
-    create(usuario: UsuarioEntity): Promise<UsuarioEntity> {
+    async findByFirebaseUid(uid: string): Promise<UsuarioEntity | null>{
+        return await this.repository.findOne({where:{firebase_uid:uid}});
+    }
+
+    async create(usuario: UsuarioEntity): Promise<UsuarioEntity> {
         const entity= this.repository.create(usuario)
-        return this.repository.save(entity)
+        return await this.repository.save(entity)
     }
 
-    update(id:number, usuario:Partial<UsuarioEntity>): Promise<UsuarioEntity>{
-        return this.repository.save(usuario)
+    async update(id:number, usuario:Partial<UsuarioEntity>): Promise<UsuarioEntity>{
+        return await this.repository.save(usuario)
     }
     
     async delete(id: number): Promise<void>{

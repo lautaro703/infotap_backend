@@ -9,6 +9,6 @@ import { AnalisisEntity } from './infrastructure/analisis.entity';
   controllers: [AnalisisController],
   providers: [AnalisisService,PostgresAnalisisRepository],
   imports:[TypeOrmModule.forFeature([AnalisisEntity])],
-  exports:[],
+  exports:[AnalisisService],
 })
 export class AnalisisModule {}

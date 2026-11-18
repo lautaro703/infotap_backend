@@ -9,7 +9,7 @@ export class PostArchivosCommand {
   constructor(
     public readonly nombre: string,
     public readonly ruta: string,
-    public readonly mineType: string,
+    public readonly mimeType: string,
     public readonly usuario_ID: number,
   ) {}
 }

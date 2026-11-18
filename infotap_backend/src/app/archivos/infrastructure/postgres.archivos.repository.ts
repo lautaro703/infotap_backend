@@ -10,17 +10,17 @@ export class PostgresArchivoRepository implements ArchivoRepository{
         @InjectRepository(ArchivoEntity) private readonly repository:Repository<ArchivoEntity>
     ){}
 
-    findAll(): Promise<ArchivoEntity[]> {
-        return this.repository.find();
+    async findAll(): Promise<ArchivoEntity[]> {
+        return await this.repository.find();
     }
 
-    findById(id: number): Promise<ArchivoEntity | null> {
-        return this.repository.findOne({where: {id}});
+    async findById(id: number): Promise<ArchivoEntity | null> {
+        return await this.repository.findOne({where: {id}});
     }
 
-    create(archivo: ArchivoEntity): Promise<ArchivoEntity> {
+    async create(archivo: ArchivoEntity): Promise<ArchivoEntity> {
         const entity= this.repository.create(archivo)
-        return this.repository.save(entity)
+        return await this.repository.save(entity)
     }
     
     async delete(id: number): Promise<void>{

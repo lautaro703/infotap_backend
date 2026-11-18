@@ -26,5 +26,5 @@ export class ArchivoEntity{
     usuario:UsuarioEntity;
 
     @OneToMany(()=> AnalisisEntity,(analisis)=> analisis.archivo)
-    analisis:ArchivoEntity[];
+    analisis:AnalisisEntity[];
 }

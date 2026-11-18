@@ -40,4 +40,8 @@ export class CiudadService {
         if(!ciudad) throw new NotFoundException('ciudad no disponible');
         await this.ciudadRepository.delete(ciudad.id);
     } 
+
+    async obtenerOCrear(nombre: string, provinciaId: number | null): Promise<CiudadEntity> {
+        return await this.ciudadRepository.obtenerOCrear(nombre, provinciaId);
+    }
 }

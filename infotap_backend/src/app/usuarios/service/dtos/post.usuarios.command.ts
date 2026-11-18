@@ -1,5 +1,9 @@
 export class PostUsuarioCommand {
-    correo: string;
-    contraseña: string;
-    archivo_ID:number;
+     id:number;
+     correo:string;
+     nombre:string;
+     firebase_uid: string;
+     foto_perfil:string;
+     fecha_registro:Date;
+     archivo_ID:number;
 }

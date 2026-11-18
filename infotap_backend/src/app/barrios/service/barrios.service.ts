@@ -5,12 +5,14 @@ import { PostBarrioCommand } from './dtos/post.barrios.command';
 import { BarrioEntity } from '../infrastructure/barrios.entity';
 import { PutBarrioCommand } from './dtos/put.barrio.command';
 import { PostgreBarrioRepository } from '../infrastructure/postgres.barrios.repository';
-
+import { GeolocalizacionService } from '../../geolocalizacion/service/geolocalizacion.service';
+import { CiudadEntity } from '../../ciudad/infrastructure/ciudad.entity';
 @Injectable()
 export class BarriosService {
 
     constructor(
         private readonly barrioRepository:PostgreBarrioRepository,
+        private readonly geolocalizacion:GeolocalizacionService,
     ){}
 
     async findAll(){
@@ -41,4 +43,40 @@ export class BarriosService {
         if(!barrio) throw new NotFoundException('barrio no disponible');
         await this.barrioRepository.delete(barrio.id);
     } 
+
+    async obtenerOCrear(nombre: string, ciudadId: number | null): Promise<BarrioEntity> {
+        console.log('🟢 ENTRÓ A BARRIOS SERVICE');
+        const barrio = await this.barrioRepository.obtenerOCrear(nombre,ciudadId);
+        console.log('🟢 BARRIO OBTENIDO:', barrio);
+
+        if(barrio.latitud != null && barrio.longitud != null){
+            return barrio;
+        }
+
+        if(!barrio.ciudad?.nombre || !barrio.ciudad?.provincia?.nombre){
+            return barrio;
+        }
+
+        console.log('Barrio:', barrio.nombre);
+        console.log('Ciudad:', barrio.ciudad?.nombre);
+        console.log('Provincia:', barrio.ciudad?.provincia?.nombre);
+
+        const coordenadas = await this.geolocalizacion.obtenerCoordenadas(
+            barrio.nombre,
+            barrio.ciudad.nombre,
+            barrio.ciudad.provincia.nombre,
+        );
+
+        console.log('Coordenadas encontradas:', coordenadas);
+
+        if(!coordenadas){
+            return barrio;
+        }
+
+        barrio.latitud=coordenadas.latitud;
+        barrio.longitud=coordenadas.longitud;
+
+        return await this.barrioRepository.save(barrio);
+    }
+    
 }

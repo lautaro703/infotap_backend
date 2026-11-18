@@ -9,9 +9,11 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { CiudadModule } from './ciudad/ciudad.module';
 import { GeneroModule } from './genero/genero.module';
 import { ProvinciaModule } from './provincia/provincia.module';
-import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GeolocalizacionService } from './geolocalizacion/service/geolocalizacion.service';
+import { FirebaseModule } from './firebase/firebase.module';
+
 @Module({
   imports: [
     AnalisisModule,
@@ -22,7 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     CiudadModule,
     GeneroModule,
     ProvinciaModule,
-    AuthModule,
+    
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -35,14 +37,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: configService.get<string>('DB_DATABASE', 'infotap_db'),
         autoLoadEntities: true,
         synchronize: true,
+        extra: {
+          max: 15,
+          idleTimeoutMillis: 30000,
+          connectionTimeoutMillis: 2000,
+        },
       }),
     }),
     ConfigModule.forRoot({
-      isGlobal:true,
+      isGlobal: true,
       envFilePath: '.env',
     }),
+    FirebaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GeolocalizacionService],
 })
 export class AppModule {}

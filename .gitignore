@@ -46,3 +46,8 @@ Thumbs.db
 
 /uploads/*
 !/uploads/.gitkeep
+
+credentials/
+.env
+.env.*
+!.env.example
